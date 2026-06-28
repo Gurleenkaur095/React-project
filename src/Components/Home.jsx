@@ -24,9 +24,14 @@ const Home = () => {
       console.log("Error in fetching category products")
     }
   }
+
+// 3. useEffect watches the "view" variable. 
+// Every single time the user clicks a different category, "view" changes, 
+// and useEffect instantly forces the API function to run again!
+
   useEffect(() => {
     categoryView();
-  }, [view])
+  }, [view]) // <-- "Watch this value for changes"
   if (!data) {
     return <div>
       <h1 className='text-3xl'>Loading Data...</h1>

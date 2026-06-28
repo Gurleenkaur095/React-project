@@ -1,0 +1,141 @@
+React hooks like useState, useEffect, and useContext are the building blocks of any modern React project (including the E-commerce project you are watching).
+
+1. USESTATE -- (COMPONENT MEMORY)
+
+=> Why do we use it?
+React components need a way to "remember" things that change over time (like the items in a shopping cart, whether a modal is open, or text typed into an input). Regular variables don't work because when React updates the screen, regular variables reset. useState preserves the data and tells React to redraw the screen when that data changes.
+
+=> Where is it imported?
+
+At the very top of any component file that needs its own local memory.
+
+=> JavaScript
+import { useState } from 'react';
+
+=>Where and how is it declared & used?
+Where: Inside your functional component, right before the return statement.
+
+=>How:
+JavaScript
+function ProductCard() {
+
+  // 1. Declaration: [currentValue, functionToUpdateIt] = useState(initialValue)
+  const [quantity, setQuantity] = useState(1);
+
+  return (
+    <div>
+      {/* 2. Using the value */}
+      <p>Quantity: {quantity}</p>
+
+      {/* 3. Updating the value */}
+      <button onClick={() => setQuantity(quantity + 1)}>Add More</button>
+    </div>
+  );
+}
+
+
+2. USEEFFECT (The Action Taker / Sync Worker)
+
+****Why do we use it?
+Sometimes a component needs to do something outside of React's usual rendering process—like fetching data from an API database, setting up a timer, or manually changing the browser title. These are called side effects. useEffect lets you trigger code automatically when the component loads or when specific data changes.
+
+****Where is it imported?
+At the top of the component file where you need to fetch data or trigger actions.
+
+JavaScript
+import { useEffect, useState } from 'react';
+
+*****Where and how is it declared & used?
+*****Where: Inside your functional component, usually right below your useState declarations.
+
+****How:
+JavaScript
+function ProductList() {
+  const [products, setProducts] = useState([]);
+
+  **// Declaration of useEffect
+  useEffect(() => {
+    // This code runs AUTOMATICALLY when the file loads on screen
+    fetch('https://api.example.com/products')
+      .then(res => res.json())
+      .then(data => setProducts(data));
+  }, []); // The empty array [] means "only run this once when the component opens"
+
+  return (
+    <div>
+      {products.map(p => <p key={p.id}>{p.name}</p>)}
+    </div>
+  );
+}
+
+3. useContext (The Global Highway)
+Why do we use it?
+Imagine your user logs in. The User Profile data is needed in the Navbar, the Checkout Page, and the Review Section. Passing this data down manually through 10 layers of components (called "prop drilling") is a nightmare. useContext creates a global broadcast system so any file can grab that data directly without passing it through middlemen.
+
+Where is it imported, declared, and used?
+This one requires a three-step setup across different files:
+
+Step A: Create the Context (The Radio Station)
+Which file: Usually a dedicated file like CartContext.js or AuthContext.js.
+
+JavaScript
+import { createContext } from 'react';
+// 1. Create the station
+export const CartContext = createContext(); 
+Step B: Provide the Context (The Broadcast Tower)
+Which file: A high-level file that wraps around everything (like App.js or index.js).
+
+JavaScript
+import { useState } from 'react';
+import { CartContext } from './CartContext'; // Import your station
+
+function App() {
+  const [cart, setCart] = useState([]); // This is the actual data
+
+  return (
+    // 2. Broadcast the data to all children inside it
+    <CartContext.Provider value={{ cart, setCart }}>
+      <Navbar />
+      <MainShop />
+    </CartContext.Provider>
+  );
+}
+Step C: Use the Context (The Receiver)
+Which file: Any deep child component (like a nested CartButton.js file) that needs the data.
+
+JavaScript
+import { useContext } from 'react'; // Import hook
+import { CartContext } from './CartContext'; // Import the specific station
+
+function CartButton() {
+  // 3. Tune into the station and pull out the data directly!
+  const { cart } = useContext(CartContext); 
+
+  return <button>Cart Items: {cart.length}</button>;
+}
+
+
+=========================Summary of Files Involved=============================
+To make this line of code work, three specific file actions are happening behind the scenes in your project:
+
+*****Where it is defined (../Context/Category.js): This is where categoryContext = createContext() was declared. It sets up the global "radio station".
+
+*****Where it is wrapped (App.jsx or main.jsx): A wrapper like <categoryContext.Provider value={{ view, setView }}> is wrapping around your components, broadcasting whatever category is currently active.
+
+*****Where it is used (Home.jsx): Your current file uses useContext(categoryContext) to intercept that broadcast, pull out the view variable, and use it to successfully filter the API URL.
+
+======================How the Signal Flows (When the App is Running)===================
+*****When Home.jsx executes useContext(categoryContext), it goes straight to the Wrapper (Provider) to find the current value.
+
+*****Think of it like this:
+
+*****The Creation File (Category.js): This just creates the channel name (e.g., "Channel 98.1 FM"). It doesn't hold the actual data; it just establishes the identity of the context.
+
+*****The Wrapper (App.jsx): This is the actual broadcast tower holding the live data (view state).
+
+*****When Home.jsx tunes into categoryContext, React looks up the component tree to the nearest Wrapper to grab the live data. It does not pull data from the creation file, because the creation file is static.
+
+[ App.jsx (Wrapper) ]  <-- Holds the live data ("electronics")
+        |
+        v
+[ Home.jsx (User) ]   <-- Requests data via useContext() -> Grabs it directly from App.jsx

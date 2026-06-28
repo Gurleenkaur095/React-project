@@ -20,11 +20,11 @@ useEffect(()=>{
     fetchProduct();
 },[])
   return (
-    // for using useContext we wrap it into name_of_variable_in_componenet. provider and pass value as an object to use multiple value -- destrcuture into object and then passed
+    // for using useContext we wrap it into name_of_variable_in_component. provider and pass value as an object to use multiple value -- destructure into object and then passed
     <categoryContext.Provider value = {{view,setView}}> 
     <div className='bg-zinc-800 text-white h-auto min-h-screen'>
         <Navbar/>
-      <h1 className='text-4xl text-center text-white'> {view.toUpperCase()} PRODUCTS</h1>
+        <h1 className='text-4xl text-center text-white'> {view.toUpperCase()} PRODUCTS</h1>
         <Home/>
         <Footer/>
     </div>
